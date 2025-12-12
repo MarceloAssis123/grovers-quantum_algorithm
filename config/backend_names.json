@@ -1,0 +1,10 @@
+{
+    "preferred_qpus": [
+        "ibm_brisbane",
+        "ibm_osaka",
+        "ibm_kyoto"
+    ],
+    "fallback_qpu": "ibm_brisbane",
+    "shots": 4096,
+    "optimization_level": 1
+}
