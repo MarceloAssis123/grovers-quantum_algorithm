@@ -53,7 +53,7 @@ def get_qiskit_service() -> QiskitRuntimeService:
     
     try:
         # Tenta carregar serviço salvo primeiro
-        service = QiskitRuntimeService(channel="ibm_quantum", instance=instance)
+        service = QiskitRuntimeService(channel="ibm_quantum_platform", instance=instance)
         print(f"✓ Conectado ao IBM Quantum (instance: {instance})")
         return service
     except Exception as e:
@@ -61,12 +61,12 @@ def get_qiskit_service() -> QiskitRuntimeService:
         print(f"Salvando credenciais IBM Quantum...")
         try:
             QiskitRuntimeService.save_account(
-                channel="ibm_quantum",
+                channel="ibm_quantum_platform",
                 token=api_key,
                 instance=instance,
                 overwrite=True
             )
-            service = QiskitRuntimeService(channel="ibm_quantum", instance=instance)
+            service = QiskitRuntimeService(channel="ibm_quantum_platform", instance=instance)
             print(f"✓ Credenciais salvas e conectado ao IBM Quantum")
             return service
         except Exception as save_error:
@@ -191,10 +191,6 @@ def validate_connection() -> bool:
     """
     try:
         print("Testando conexão com IBM Quantum...\n")
-        
-        # Carregar credenciais
-        api_key, instance = load_ibm_credentials()
-        print(f"✓ Credenciais carregadas do .env")
         
         # Conectar ao serviço
         service = get_qiskit_service()
