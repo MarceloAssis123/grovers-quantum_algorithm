@@ -3,6 +3,8 @@ Execução do Algoritmo de Grover em QPU real da IBM.
 
 Este script executa o circuito de Grover diretamente em hardware quântico real,
 analisa os resultados e compara com o resultado ideal.
+
+Nota: Otimizado para funcionar com o plano gratuito da IBM Quantum (sem Session).
 """
 
 import json
@@ -10,7 +12,7 @@ import os
 from pathlib import Path
 from typing import Dict, Tuple
 from qiskit import transpile
-from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2, Session
+from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 
 from grover.circuits import build_grover_2bit_circuit, print_circuit_info
 from grover.utils import get_qiskit_service, select_best_qpu
@@ -83,39 +85,39 @@ def run_grover_on_qpu() -> Tuple[Dict[str, int], str, str]:
     print(f"   - Profundidade: {t_circuit.depth()}")
     print(f"   - Operações: {len(t_circuit.data)}\n")
     
-    # 6. Executar com Session e SamplerV2
+    # 6. Executar com SamplerV2 (sem Session para compatibilidade com plano gratuito)
     print(f"🚀 Iniciando execução no QPU {backend.name}...")
     print(f"   Aguarde: o tempo de fila pode variar de minutos a horas...")
     print(f"   Você pode fechar este programa - use o Job ID para recuperar resultados.\n")
     
-    with Session(service=service, backend=backend) as session:
-        sampler = SamplerV2(session=session)
-        job = sampler.run([t_circuit], shots=config['shots'])
+    # Criar sampler diretamente com o backend (sem Session para plano gratuito)
+    sampler = SamplerV2(backend)
+    job = sampler.run([t_circuit], shots=config['shots'])
+    
+    job_id = job.job_id()
+    print(f"✓ Job submetido com sucesso!")
+    print(f"   Job ID: {job_id}")
+    print(f"   Backend: {backend.name}\n")
+    
+    print("⏳ Aguardando execução no QPU...")
+    print("   (Pressione Ctrl+C para cancelar a espera, o job continuará rodando)\n")
+    
+    try:
+        result = job.result()[0]
+        counts = result.data.meas.get_counts()
         
-        job_id = job.job_id()
-        print(f"✓ Job submetido com sucesso!")
-        print(f"   Job ID: {job_id}")
-        print(f"   Backend: {backend.name}\n")
+        print("✓ Execução concluída com sucesso!\n")
         
-        print("⏳ Aguardando execução no QPU...")
-        print("   (Pressione Ctrl+C para cancelar a espera, o job continuará rodando)\n")
+        return counts, job_id, backend.name
         
-        try:
-            result = job.result()[0]
-            counts = result.data.meas.get_counts()
-            
-            print("✓ Execução concluída com sucesso!\n")
-            
-            return counts, job_id, backend.name
-            
-        except KeyboardInterrupt:
-            print("\n⚠ Espera cancelada pelo usuário.")
-            print(f"   Job {job_id} continua executando no QPU.")
-            print(f"   Use retrieve_job('{job_id}') para recuperar resultados depois.\n")
-            raise
-        except Exception as e:
-            print(f"\n✗ Erro durante execução: {e}\n")
-            raise
+    except KeyboardInterrupt:
+        print("\n⚠ Espera cancelada pelo usuário.")
+        print(f"   Job {job_id} continua executando no QPU.")
+        print(f"   Use retrieve_job('{job_id}') para recuperar resultados depois.\n")
+        raise
+    except Exception as e:
+        print(f"\n✗ Erro durante execução: {e}\n")
+        raise
 
 
 def analyze_results(counts: Dict[str, int], backend_name: str, expected_state: str = '11') -> float:

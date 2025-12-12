@@ -325,11 +325,24 @@ qpus = list_available_qpus(service)
 
 ## ⚠️ Considerações Importantes
 
+### Plano Gratuito vs Pago
+
+- **Plano Gratuito (Open Plan)**:
+  - ✓ Limitado a alguns minutos de QPU por mês
+  - ✓ Funciona sem Session (modo batch)
+  - ✗ Sem acesso prioritário na fila
+  
+- **Plano Pago**:
+  - ✓ Mais tempo de QPU
+  - ✓ Acesso prioritário na fila
+  - ✓ Suporte a Session para múltiplas execuções
+
+**Nota**: Este projeto foi otimizado para funcionar com o plano gratuito!
+
 ### Custo e Fila
 
-- **Plano Gratuito**: Limitado a alguns minutos de QPU por mês
-- **Plano Pago**: Acesso prioritário e mais tempo de QPU
 - **Tempo de Fila**: Pode variar de minutos a horas dependendo da demanda
+- **Créditos**: Cada execução consome uma pequena quantidade de créditos
 
 ### Melhores Práticas
 
